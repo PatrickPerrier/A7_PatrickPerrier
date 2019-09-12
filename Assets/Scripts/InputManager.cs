@@ -8,6 +8,12 @@ public class InputManager : MonoBehaviour
     [SerializeField]
     float maxDistance;
 
+    [SerializeField]
+    ParticleSystem mParticle;
+
+    [SerializeField]
+    ParticleSystem aParticle;
+
 
     private ObjectInfo selectedInfo;
     private NavMeshAgent agent;
@@ -23,6 +29,7 @@ public class InputManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             LeftClick();
+            Instantiate(mParticle, hit.point, Quaternion.identity);
         }
         if (Input.GetMouseButtonDown(1) && selectedInfo.isSelected)
         {
@@ -31,6 +38,13 @@ public class InputManager : MonoBehaviour
 
         foreach (GameObject units in allSelectedUnits)
         {
+            if (units.GetComponent<ObjectInfo>().health <= 0)
+            {
+                
+                allSelectedUnits.Remove(units);
+                print(units.GetComponent<ObjectInfo>().objectName + " has been killed");
+            }
+            else
             agent = units.GetComponent<NavMeshAgent>();
             units.GetComponent<ObjectInfo>().CheckAttackRange();
         }
@@ -92,10 +106,13 @@ public class InputManager : MonoBehaviour
                 foreach (GameObject unit in allSelectedUnits )
                 {
                     agent = unit.GetComponent<NavMeshAgent>();
-                    
+
+                    unit.GetComponent<ObjectInfo>().groundMove = true;
+                    agent.isStopped = false;
                     agent.SetDestination(hit.point);
-                    Debug.Log("Moving");
+                    Debug.Log(hit.point);
                     unit.GetComponent<ObjectInfo>().hasTarget = false;
+                    
                 }
                
             }
@@ -105,10 +122,11 @@ public class InputManager : MonoBehaviour
                 foreach (GameObject unit in allSelectedUnits)
                 {
                     agent = unit.GetComponent<NavMeshAgent>();
-
+                    unit.GetComponent<ObjectInfo>().groundMove = false;
                     agent.SetDestination(targetObject.transform.position);
                     unit.GetComponent<ObjectInfo>().hasTarget = true;
-                    unit.GetComponent<ObjectInfo>().target = hit;
+                    unit.GetComponent<ObjectInfo>().target = hit.collider.gameObject;
+                    unit.GetComponent<ObjectInfo>().isTDead = false;
                 }
             }
         }
