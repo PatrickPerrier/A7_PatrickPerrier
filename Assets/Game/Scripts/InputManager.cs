@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -10,10 +9,6 @@ public class InputManager : MonoBehaviour
 
     [SerializeField]
     ParticleSystem mParticle;
-
-    [SerializeField]
-    ParticleSystem aParticle;
-
 
     private ObjectInfo selectedInfo;
     private NavMeshAgent agent;
@@ -59,15 +54,12 @@ public class InputManager : MonoBehaviour
         {
             if (hit.collider.tag == "Ground")
             {
-                selectedUnit = null;
-                allSelectedUnits.Clear();
                 foreach (GameObject units in allSelectedUnits)
                 {
-                    Debug.Log("Foreach");
                     units.GetComponent<ObjectInfo>().isSelected = false;
                 }
-                
-                Debug.Log("Deselected");
+                selectedUnit = null;
+                allSelectedUnits.Clear();
             }
             else if (hit.collider.tag == "Selectable" && hit.collider.GetComponent<ObjectInfo>().isEnemy == false)
             {
@@ -75,10 +67,12 @@ public class InputManager : MonoBehaviour
                 if (allSelectedUnits.Contains(selectedUnit))
                 {
                     allSelectedUnits.Remove(selectedUnit);
+                    //selectedInfo.isSelected = false;
                 }
                 else if (allSelectedUnits.Contains(selectedUnit) == false)
                 {
                     allSelectedUnits.Add(selectedUnit);
+                    //selectedInfo.isSelected = true;
                 }
                 
                 selectedInfo = selectedUnit.GetComponent<ObjectInfo>();
@@ -110,9 +104,7 @@ public class InputManager : MonoBehaviour
                     unit.GetComponent<ObjectInfo>().groundMove = true;
                     agent.isStopped = false;
                     agent.SetDestination(hit.point);
-                    Debug.Log(hit.point);
-                    unit.GetComponent<ObjectInfo>().hasTarget = false;
-                    
+                    Debug.Log(hit.point);                    
                 }
                
             }
@@ -124,22 +116,12 @@ public class InputManager : MonoBehaviour
                     agent = unit.GetComponent<NavMeshAgent>();
                     unit.GetComponent<ObjectInfo>().groundMove = false;
                     agent.SetDestination(targetObject.transform.position);
-                    unit.GetComponent<ObjectInfo>().hasTarget = true;
                     unit.GetComponent<ObjectInfo>().target = hit.collider.gameObject;
-                    unit.GetComponent<ObjectInfo>().isTDead = false;
                 }
             }
         }
     }
-    
-    
-    private void OnDrawGizmos()
-    {
 
-        foreach (GameObject g in allSelectedUnits)
-        {
-            UnityEditor.Handles.color = Color.green;
-            UnityEditor.Handles.DrawWireDisc(g.transform.position, g.transform.up, 1f);
-        }
-    }
+
+    
 }

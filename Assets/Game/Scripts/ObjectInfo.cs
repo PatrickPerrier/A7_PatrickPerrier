@@ -1,7 +1,7 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public class ObjectInfo : MonoBehaviour
 {
@@ -32,13 +32,17 @@ public class ObjectInfo : MonoBehaviour
     public bool canMove;
 
     [SerializeField]
-    public bool hasTarget;
-
-    [SerializeField]
     public bool groundMove;
 
     [SerializeField]
-    public float health = 20f;
+    ParticleSystem deathParticle;
+
+    [SerializeField]
+    public float startHealth;
+
+    public float health;
+
+    public Image healthBar;
 
     [SerializeField]
     public float cooldownTime = 4f;
@@ -54,7 +58,7 @@ public class ObjectInfo : MonoBehaviour
 
     private bool isCooldown;
 
-    public bool isTDead;
+    private float dist;
 
     public GameObject target;
 
@@ -62,6 +66,7 @@ public class ObjectInfo : MonoBehaviour
 
     void Start()
     {
+        health = startHealth;
         agent = GetComponent<NavMeshAgent>();
         if (canMove)
         {
@@ -74,12 +79,17 @@ public class ObjectInfo : MonoBehaviour
         {
             art.GetComponent<Renderer>().material.color = Color.red;
         }
+        else
+        {
+            Color fColor = FindObjectOfType<MainMenuHandler>().tColor;
+            art.GetComponent<Renderer>().material.color = fColor;
+        }
     }
     private void Update()
     {
-        if (canMove == false)
+        if (target != null)
         {
-            print(target);
+            dist = Vector3.Distance(target.transform.position, transform.position);
         }
         //Check to see if agent is walking
         if (agent.velocity.magnitude <= 0f && canMove)
@@ -90,19 +100,20 @@ public class ObjectInfo : MonoBehaviour
         {
             animator.SetBool("isWalking", true);
         }
-        if (hasTarget && agent.isStopped || hasTarget && canMove == false)
-        {
-            
-            if (!isCooldown && isTDead == false)
+        if (agent.isStopped || canMove == false)
+        {            
+            if (!isCooldown && target != null)
             {
-                if (target.GetComponent<ObjectInfo>().health >= 0 && target.gameObject.activeSelf)
+                if (target.GetComponent<ObjectInfo>().health >= 0)
                 {
-                    StartCoroutine(Attack());
-                }
-                else
-                {
-                    target = null;
-                    isTDead = true;
+                    if (dist < attackRange)
+                    {
+                        StartCoroutine(Attack());
+                    }
+                    else
+                    {
+                        StopCoroutine(Attack());
+                    }                    
                 }
             }
         }
@@ -120,7 +131,12 @@ public class ObjectInfo : MonoBehaviour
         {
             LookAt();
         }
-        
+
+        if (isEnemy == false)
+        {
+            SelectionGizmo();
+        }
+
     }
 
     public  void CheckAttackRange()
@@ -147,7 +163,7 @@ public class ObjectInfo : MonoBehaviour
     private IEnumerator Attack()
     {
         new WaitForEndOfFrame();
-        if (agent.remainingDistance < attackRange || canMove == false)
+        if (dist < attackRange || canMove == false)
         {
             isCooldown = true;
             if (canMove)
@@ -184,42 +200,33 @@ public class ObjectInfo : MonoBehaviour
         int i = 0;
         while (i < hitColliders.Length)
         {
-            Delay();
-            if (agent.hasPath == false)
+            if (hitColliders[i].gameObject.GetComponent<ObjectInfo>())
             {
-                if (hasTarget == false)
+                if (hitColliders[i].gameObject.GetComponent<ObjectInfo>().isEnemy != isEnemy)
                 {
-                    if (hitColliders[i].gameObject.GetComponent<ObjectInfo>())
+                    target = hitColliders[i].gameObject;
+                    if (agent.remainingDistance > attackRange)
                     {
-                        if (hitColliders[i].gameObject.GetComponent<ObjectInfo>().isEnemy == false)
-                        {
-                            if (canMove)
-                            {
-                                agent.SetDestination(hitColliders[i].gameObject.transform.position);
-                            }
-                            else
-                            {
-                                target = hitColliders[i].gameObject;
-                                ShootProjectile();
-                            }
-                            hasTarget = true;
-                            target = hitColliders[i].gameObject;
-                        }
+                        target = null;
                     }
+                    else if (canMove)
+                    {
+                        agent.SetDestination(target.gameObject.transform.position);
+                    }
+                    else if (!isCooldown)
+                    {
+                        ShootProjectile();
+                    }
+
                 }
             }
-            
             i++;
         }
     }
-    private IEnumerator Delay()
-    {
-        yield return new WaitForEndOfFrame();
-        
-    }
+    
     void LookAt ()
     {
-        if (groundMove == false)
+        if (groundMove == false && target != null)
         {
             Vector3 direction = target.transform.position - transform.position;
             Quaternion rotation = Quaternion.LookRotation(direction);
@@ -228,15 +235,34 @@ public class ObjectInfo : MonoBehaviour
     }
     private void HealthCheck()
     {
+        healthBar.fillAmount = health / startHealth;
         if (health <= 0)
         {
-            gameObject.SetActive(false);
+            Instantiate(deathParticle, transform.position, Quaternion.identity);
+            if (canMove == false)
+            {
+                FindObjectOfType<InGameMenuHandler>().gameWon = true;
+                print("You Win");
+            }
+            Destroy(gameObject);
         }
     }
     void ShootProjectile ()
     {
         GameObject proj = Instantiate(projectile, transform.position + new Vector3(0, projectileHeight, 0), Quaternion.identity) as GameObject;
         proj.GetComponent<Projectile>().target = target; 
+    }
+    void SelectionGizmo ()
+    {
+        GameObject sCircle = transform.Find("SelectionCircle").gameObject;
+        if (isSelected)
+        {
+            sCircle.SetActive(true);
+        }
+        else
+        {
+            sCircle.SetActive(false);
+        }
     }
 
 }
