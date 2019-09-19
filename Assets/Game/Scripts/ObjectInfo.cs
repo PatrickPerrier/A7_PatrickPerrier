@@ -45,6 +45,9 @@ public class ObjectInfo : MonoBehaviour
     public Image healthBar;
 
     [SerializeField]
+    AudioSource deathSound;
+
+    [SerializeField]
     public float cooldownTime = 4f;
 
     [SerializeField]
@@ -72,6 +75,7 @@ public class ObjectInfo : MonoBehaviour
         {
             animator = GetComponentInChildren<Animator>();
         }
+
         GameObject art = transform.Find("ybot").gameObject;
         art = art.transform.Find("Alpha_Surface").gameObject;
 
@@ -91,7 +95,6 @@ public class ObjectInfo : MonoBehaviour
         {
             dist = Vector3.Distance(target.transform.position, transform.position);
         }
-        //Check to see if agent is walking
         if (agent.velocity.magnitude <= 0f && canMove)
         {
             animator.SetBool("isWalking", false);
@@ -131,12 +134,10 @@ public class ObjectInfo : MonoBehaviour
         {
             LookAt();
         }
-
         if (isEnemy == false)
         {
             SelectionGizmo();
         }
-
     }
 
     public  void CheckAttackRange()
@@ -158,7 +159,6 @@ public class ObjectInfo : MonoBehaviour
             else
             agent.isStopped = false;
         }
-
     }
     private IEnumerator Attack()
     {
@@ -170,7 +170,6 @@ public class ObjectInfo : MonoBehaviour
             {
                 animator.SetBool("isAttacking", true);
             }
-
             if (isRanged)
             {
                 ShootProjectile();
@@ -190,9 +189,7 @@ public class ObjectInfo : MonoBehaviour
             }
 
             isCooldown = false;
-
-        }
-        
+        }        
     }
     void SphereDetect()
     {
@@ -217,13 +214,11 @@ public class ObjectInfo : MonoBehaviour
                     {
                         ShootProjectile();
                     }
-
                 }
             }
             i++;
         }
-    }
-    
+    }    
     void LookAt ()
     {
         if (groundMove == false && target != null)
@@ -239,11 +234,12 @@ public class ObjectInfo : MonoBehaviour
         if (health <= 0)
         {
             Instantiate(deathParticle, transform.position, Quaternion.identity);
+            Instantiate(deathSound, transform.position, transform.rotation);
             if (canMove == false)
             {
                 FindObjectOfType<InGameMenuHandler>().gameWon = true;
                 print("You Win");
-            }
+            }            
             Destroy(gameObject);
         }
     }

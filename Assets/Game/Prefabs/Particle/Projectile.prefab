@@ -64,6 +64,7 @@ MonoBehaviour:
   speed: 10
   target: {fileID: 0}
   projectileDemage: 5
+  source: {fileID: 4874289424290431883, guid: 6273493da49da3142900cb6c219f1f35, type: 3}
   explosion: {fileID: 3816066499954039310, guid: 2a6fdaec30bad934db40d88a73ec8a65,
     type: 3}
 --- !u!1 &1978078773801780085

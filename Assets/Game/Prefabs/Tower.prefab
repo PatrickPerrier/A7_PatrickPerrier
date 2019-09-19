@@ -237,6 +237,32 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1354463799971440449, guid: 9e92cf274cc3bd94fb764f4c1957d7cb,
         type: 3}
+    - target: {fileID: 1470064399960758245, guid: 398967425bae8174a9e6e49074128c4f,
+        type: 3}
+      propertyPath: deathSound
+      value: 
+      objectReference: {fileID: 3461272830436493707, guid: d494d737aaee0c84cb4343cce3f25a6e,
+        type: 3}
+    - target: {fileID: 1470064399960758245, guid: 398967425bae8174a9e6e49074128c4f,
+        type: 3}
+      propertyPath: cooldownTime
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1470064399960758245, guid: 398967425bae8174a9e6e49074128c4f,
+        type: 3}
+      propertyPath: attackRange
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 1470064399960758245, guid: 398967425bae8174a9e6e49074128c4f,
+        type: 3}
+      propertyPath: sightRange
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 1470064399960758245, guid: 398967425bae8174a9e6e49074128c4f,
+        type: 3}
+      propertyPath: attackDemage
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 1470064399960758244, guid: 398967425bae8174a9e6e49074128c4f,
         type: 3}
       propertyPath: m_LocalPosition.x

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
@@ -9,6 +7,9 @@ public class Projectile : MonoBehaviour
 
     [SerializeField]
     float projectileDemage;
+
+    [SerializeField]
+    AudioSource source;
 
     [SerializeField]
     ParticleSystem explosion;
@@ -22,6 +23,7 @@ public class Projectile : MonoBehaviour
 
             if (Vector3.Distance(transform.position, target.transform.position) < 0.1f)
             {
+                Instantiate(source, transform.position, transform.rotation);
                 Instantiate(explosion, transform.position, Quaternion.identity);
                 target.GetComponent<ObjectInfo>().health = target.GetComponent<ObjectInfo>().health - projectileDemage;
                 Destroy(gameObject);
